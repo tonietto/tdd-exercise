@@ -1,0 +1,581 @@
+import {
+  CodeSurfer,
+  CodeSurferColumns,
+  Step,
+} from "code-surfer";
+import { dracula } from "@code-surfer/themes";
+
+export const theme = dracula;
+
+# TDD Exercise
+
+---
+
+# TDD Exercise
+
+The `Questionnaire` component in `web-app`
+
+---
+
+## Description
+
+- Multiple questions with multiple choices
+- Showed one question at a time
+- Each choice points to another question
+
+---
+
+## Description (...)
+
+- Each branch of questions have a final answer
+- Final answers have a CTA
+
+---
+
+## The files
+
+```md
+./questionnaire
+├── ConnectedQuestionnaire.js
+├── ConnectedQuestionnaire.spec.js
+├── Questionnaire.js
+├── Questionnaire.css.js
+├── Questionnaire.spec.js
+└── Questionnaire.story.js
+```
+
+---
+
+## The connected component
+
+- Should get a question from the selector:
+  - `selectQuestion(questionNumber)`
+
+---
+
+<CodeSurfer>
+
+```md title="Requirements" 1:19
+- It should always start with question number 1
+- It should have each question's title inside a `QuestionTittleSt` component rendering an `h2` tag
+- It should show the list of choices inside a `ChoicesListSt` component rendering an `ol`
+- Each choice should be a `Choice` component rendering a `li` with a `handleClick` function
+- Buttons should be `Button` components
+- The final answer text should be inside a `FinalAnswerSt` component
+- Choices should be sorted by the respective `number` values
+- Choices should show as a., b., c. instead of numbers
+- Questions numbers should be omitted
+- Clicking on a choice should bring the next piped question based on the choice's `goToQuestion` number
+- The question `number` should be added as a route parameter
+- There should be a back button
+- Clicking on the back button should go back in history to the previous question
+- If the user gets on the final answer there should be another button with the answer's `cta` value
+- Final answers should not show the choices list
+- Clicking on the last button should change the route to the answer's `to` value
+- It should accept any number of piped questions and answers and final answers dynamically
+- There should always be a reset button, to get the questionnaire back to the first question
+- The reset button should be hidden on mobile
+```
+
+</CodeSurfer>
+
+---
+
+## Wireframe
+
+---
+
+<CodeSurfer>
+
+```md title="Refined into test steps" subtitle="Questionnaire"
+- should show a question title
+- should show a list of choices
+- should render a question based on `question` prop
+- should render choices based on `question` prop
+- should show choices as a., b., c.
+- should have 2 `Button`s on tablets and desktop
+- should have 1 `Button`s on mobile
+- should show a `FinalAnswerSt` without `ChoicesListSt`
+- should execute a function with the goToQuestion as a parameter when clicking on a choice
+- should execute a function without parameter when clicking on the back button
+- should execute a function without parameter when clicking on the reset button
+- should show the cta button with the cta text when in a final answer
+- should execute a function with the final answer path as paremeter when clicking on the cta button
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```md title="Refined into test steps" subtitle="ConnectedQuestionnaire"
+- should always start with question number 1
+- should add the question number as a route parameter
+- should change the parameter as the user picks choices
+- should go back in history when clicking on back
+- should show the previous question content when going back in history
+- should show the question number 1 when clicking on the reset button
+- should go all the way from question number 1 to a final answer
+- should change the route to the defined path when clicking a final answer's cta
+```
+
+</CodeSurfer>
+
+---
+
+## First test
+
+- should show a question title
+- should show a list of choices
+
+---
+
+<CodeSurferColumns>
+
+<Step title="Write test">
+
+```js
+// Questionnaire.spec.js
+
+/*
+ * should show a question title
+ * should show a list of choices
+ */
+```
+
+```js
+// Questionnaire.js
+```
+
+</Step>
+
+<Step title="See it fail">
+
+```js 3:16
+// Questionnaire.spec.js
+
+describe("Questionnaire", () => {
+  it("should have a title and a list of choices", () => {
+    const questionnaire = shallow(<Questionnaire />);
+
+    expect(
+      questionnaire.find(QuestionTitleSt)
+    ).toHaveLength(1);
+    expect(questionnaire.find(ChoicesListSt)).toHaveLength(
+      1
+    );
+
+    questionnaire.unmount();
+  });
+});
+```
+
+```js
+// Questionnaire.js
+```
+
+</Step>
+
+<Step title="Make it work">
+
+```js 3:12
+// Questionnaire.spec.js
+
+describe("Questionnaire", () => {
+  it("should have a title and a list of choices", () => {
+    const questionnaire = shallow(<Questionnaire />);
+
+    expect(
+      questionnaire.find(QuestionTitleSt)
+    ).toHaveLength(1);
+    expect(questionnaire.find(ChoicesListSt)).toHaveLength(
+      1
+    );
+
+    questionnaire.unmount();
+  });
+});
+```
+
+```js 3:10
+// Questionnaire.js
+
+export const Questionnaire = () => (
+  <>
+    <QuestionTitleSt />
+    <ChoicesListSt />
+  </>
+);
+const QuestionnaireTitleSt = () => <>empty</>;
+const ChoicesListSt = () => <>empty</>;
+```
+
+</Step>
+
+</CodeSurferColumns>
+
+---
+
+## Next test
+
+- should render a question based on `question` prop
+
+---
+
+### Extra code
+
+<CodeSurfer>
+
+```js 3:18 subtitle="The question object"
+// Questionnaire.spec.js
+
+const question = {
+  number: 1,
+  title: "Question 1?",
+  choices: [
+    {
+      number: 1,
+      text: "Choice a), it goes to question n. 11!",
+      goesToQuestion: 11,
+    },
+    {
+      number: 2,
+      text: "Choice b), it goes to question n. 3!",
+      goesToQuestion: 3,
+    },
+  ],
+};
+```
+
+```js subtitle="The styled-components"
+// Questionnaire.css.js
+
+import styled from "styled-components";
+
+export const QuestionTitleSt = styled.h2``;
+export const ChoicesListSt = styled.ol``;
+export const ChoiceSt = styled.li``;
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurferColumns>
+
+<Step title="Write test">
+
+```js
+// Questionnaire.spec.js
+
+/*
+ * should render a question based on `question` prop
+ */
+```
+
+```js
+// Questionnaire.js
+
+export const Questionnaire = () => (
+  <>
+    <QuestionTitleSt />
+    <ChoicesListSt />
+  </>
+);
+const QuestionnaireTitleSt = () => <>empty</>;
+const ChoicesListSt = () => <>empty</>;
+```
+
+</Step>
+
+<Step title="See it fail">
+
+```js 3:12
+// Questionnaire.spec.js
+
+it("should render a question title", () => {
+  const questionnaire = mount(
+    <Questionnaire question={question} />
+  );
+
+  const title = questionnaire.find(QuestionTitleSt);
+  expect(title.text()).toBe(question.title);
+
+  questionnaire.unmount();
+});
+```
+
+```js
+// Questionnaire.js
+
+export const Questionnaire = () => (
+  <>
+    <QuestionTitleSt />
+    <ChoicesListSt />
+  </>
+);
+const QuestionnaireTitleSt = () => <>empty</>;
+const ChoicesListSt = () => <>empty</>;
+```
+
+</Step>
+
+<Step title="Make it work">
+
+```js 3:12
+// Questionnaire.spec.js
+
+it("should render a question title", () => {
+  const questionnaire = mount(
+    <Questionnaire question={question} />
+  );
+
+  const title = questionnaire.find(QuestionTitleSt);
+  expect(title.text()).toBe(question.title);
+
+  questionnaire.unmount();
+});
+```
+
+```js 3:7
+// Questionnaire.js
+
+import {
+  ChoicesListSt,
+  ChoiceSt,
+  QuestionTitleSt,
+} from "app/marketplace/questionnaire/Questionnaire.css";
+
+export const Questionnaire = () => (
+  <>
+    <QuestionTitleSt />
+    <ChoicesListSt />
+  </>
+);
+```
+
+</Step>
+
+<Step title="Make it work">
+
+```js 3:12
+// Questionnaire.spec.js
+
+it("should render a question title", () => {
+  const questionnaire = mount(
+    <Questionnaire question={question} />
+  );
+
+  const title = questionnaire.find(QuestionTitleSt);
+  expect(title.text()).toBe(question.title);
+
+  questionnaire.unmount();
+});
+```
+
+```js 9:20
+// Questionnaire.js
+
+import {
+  ChoicesListSt,
+  ChoiceSt,
+  QuestionTitleSt,
+} from "app/marketplace/questionnaire/Questionnaire.css";
+
+export const Questionnaire = ({ question }) => (
+  <>
+    <QuestionTitleSt>{question.title}</QuestionTitleSt>
+    <ChoicesListSt />
+  </>
+);
+```
+
+</Step>
+
+</CodeSurferColumns>
+
+---
+
+## Next test
+
+- should render choices based on `question` prop
+
+---
+
+<CodeSurferColumns>
+
+<Step title="Write test">
+
+```js
+// Questionnaire.spec.js
+
+/*
+ * should render choices based on `question` prop
+ */
+```
+
+```js
+// Questionnaire.js
+
+export const Questionnaire = ({ question }) => (
+  <>
+    <QuestionTitleSt>{question.title}</QuestionTitleSt>
+    <ChoicesListSt />
+  </>
+);
+```
+
+</Step>
+
+<Step title="See it fail">
+
+```js 3:17
+// Questionnaire.spec.js
+
+it("should render a question choices", () => {
+  const questionnaire = mount(
+    <Questionnaire question={question} />
+  );
+
+  const firstChoice = questionnaire.find(ChoiceSt).first();
+  const secondChoice = questionnaire.find(ChoiceSt).at(1);
+
+  expect(firstChoice.text()).toBe(question.choices[0].text);
+  expect(secondChoice.text()).toBe(
+    question.choices[1].text
+  );
+
+  questionnaire.unmount();
+});
+```
+
+```js
+// Questionnaire.js
+
+export const Questionnaire = ({ question }) => (
+  <>
+    <QuestionTitleSt>{question.title}</QuestionTitleSt>
+    <ChoicesListSt />
+  </>
+);
+```
+
+</Step>
+
+<Step title="Make it work">
+
+```js 3:17
+// Questionnaire.spec.js
+
+it("should render a question choices", () => {
+  const questionnaire = mount(
+    <Questionnaire question={question} />
+  );
+
+  const firstChoice = questionnaire.find(ChoiceSt).first();
+  const secondChoice = questionnaire.find(ChoiceSt).at(1);
+
+  expect(firstChoice.text()).toBe(question.choices[0].text);
+  expect(secondChoice.text()).toBe(
+    question.choices[1].text
+  );
+
+  questionnaire.unmount();
+});
+```
+
+```js 6:12
+// Questionnaire.js
+
+export const Questionnaire = ({ question }) => (
+  <>
+    <QuestionTitleSt>{question.title}</QuestionTitleSt>
+    <ChoicesListSt>
+      {question.choices.map(choice => (
+        <ChoiceSt key={choice.number}>
+          {choice.text}
+        </ChoiceSt>
+      ))}
+    </ChoicesListSt>
+  </>
+);
+```
+
+</Step>
+
+</CodeSurferColumns>
+
+---
+
+## Next requirement
+
+- should show choices as a., b., c.
+
+---
+
+```bash
+yarn storybook
+```
+
+---
+
+<CodeSurfer>
+
+```md title="Requirements" subtitle="Questionnaire" 1:13
+- should show a question title
+- should show a list of choices
+- should render a question based on `question` prop
+- should render choices based on `question` prop
+- should show choices as a., b., c.
+- should have 2 `Button`s on tablets and desktop
+- should have 1 `Button`s on mobile
+- should show a `FinalAnswerSt` without `ChoicesListSt`
+- should execute a function with the goToQuestion as a parameter when clicking on a choice
+- should execute a function without parameter when clicking on the back button
+- should execute a function without parameter when clicking on the reset button
+- should show the cta button with the cta text when in a final answer
+- should execute a function with the final answer path as paremeter when clicking on the cta button
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```md title="Requirements" subtitle="ConnectedQuestionnaire" 1:8
+- should always start with question number 1
+- should add the question number as a route parameter
+- should change the parameter as the user picks choices
+- should go back in history when clicking on back
+- should show the previous question content when going back in history
+- should show the question number 1 when clicking on the reset button
+- should go all the way from question number 1 to a final answer
+- should change the route to the defined path when clicking a final answer's cta
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```js
+const wrapper = mountWithStore(
+  <Router history={history}>
+    <Route
+      path="/"
+      component={() => {
+        return <ConnectedComponentHere />;
+      }}
+    />
+  </Router>
+);
+```
+
+</CodeSurfer>
+
+---
+
+Thanks!
